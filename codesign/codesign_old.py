@@ -109,7 +109,7 @@ def interactive_mode():
             elif choice == '4':
                 interactive_signature_info()
             elif choice == '5':
-                show_examples()
+                examples()
                 input(f"\n{Fore.CYAN}Press Enter to continue...{Style.RESET_ALL}")
             elif choice == '6':
                 print(f"\n{Fore.GREEN}Thank you for using CodeSign! 👋{Style.RESET_ALL}")
@@ -413,70 +413,26 @@ def interactive_signature_info():
         print_error(f"Failed to read signature file: {e}")
 
 
-def show_examples():
-    """Show usage examples."""
-    examples_text = f"""
-{Fore.CYAN}CodeSign Usage Examples:{Style.RESET_ALL}
-
-{Fore.YELLOW}1. Generate a code signing certificate:{Style.RESET_ALL}
-   python codesign.py cert generate --common-name "My Code Signing Cert" --organization "My Company"
-
-{Fore.YELLOW}2. Generate with custom parameters:{Style.RESET_ALL}
-   python codesign.py cert generate -cn "Developer Cert" -o "Acme Corp" -c "US" -k 4096 -d 730 --password mypassword
-
-{Fore.YELLOW}3. View certificate information:{Style.RESET_ALL}
-   python codesign.py cert info certificates/my_code_signing_cert.crt
-
-{Fore.YELLOW}4. Sign a file:{Style.RESET_ALL}
-   python codesign.py sign file myapp.exe -k certificates/my_cert.key -c certificates/my_cert.crt
-
-{Fore.YELLOW}5. Sign with specific options:{Style.RESET_ALL}
-   python codesign.py sign file myapp.exe -k my.key -c my.crt -a SHA384 -pad PKCS1v15 -e pycryptodome
-
-{Fore.YELLOW}6. Verify a signature:{Style.RESET_ALL}
-   python codesign.py verify signature signatures/myapp.exe.sig
-
-{Fore.YELLOW}7. Verify with different file location:{Style.RESET_ALL}
-   python codesign.py verify signature myapp.exe.sig --file-path /new/location/myapp.exe
-
-{Fore.YELLOW}8. View signature details:{Style.RESET_ALL}
-   python codesign.py info signatures/myapp.exe.sig
-
-{Fore.YELLOW}9. Verbose output:{Style.RESET_ALL}
-   python codesign.py -v sign file myapp.exe -k my.key -c my.crt
-   python codesign.py -v verify signature myapp.exe.sig
-
-{Fore.YELLOW}10. Interactive mode:{Style.RESET_ALL}
-   python codesign.py           # Starts interactive mode
-   python codesign.py -i        # Explicitly start interactive mode
-
-{Fore.GREEN}Note: Use --help with any command for more detailed options{Style.RESET_ALL}
-"""
-    click.echo(examples_text)
-
-
-# CLI setup
-@click.group(invoke_without_command=True)
+@click.group()
 @click.version_option(version=__version__)
 @click.option('--verbose', '-v', is_flag=True, help='Enable verbose output')
 @click.option('--interactive', '-i', is_flag=True, help='Run in interactive mode')
 @click.pass_context
-def cli(ctx, verbose, interactive):
+def main_cli(ctx, verbose, interactive):
     """CodeSign - Digital Code Signing Utility"""
     ctx.ensure_object(dict)
     ctx.obj['verbose'] = verbose
     
-    # If no subcommand provided, go to interactive mode
+    # If no subcommand and no interactive flag, check if we should go interactive
     if ctx.invoked_subcommand is None:
         if interactive or len(sys.argv) == 1:
             interactive_mode()
         else:
             print_banner()
-            click.echo(ctx.get_help())
+            ctx.get_help()
 
 
-# Certificate management commands
-@cli.group()
+@main_cli.group()
 def cert():
     """Certificate management commands"""
     pass
@@ -543,6 +499,7 @@ def cert_info(certificate_path):
             ext_key_usage = certificate.extensions.get_extension_for_oid(
                 ExtensionOID.EXTENDED_KEY_USAGE
             ).value
+            # Check if it's an ExtendedKeyUsage extension and contains CODE_SIGNING
             if isinstance(ext_key_usage, x509.ExtendedKeyUsage) and ExtendedKeyUsageOID.CODE_SIGNING in ext_key_usage:
                 print_success("  ✓ Code Signing: Enabled")
             else:
@@ -555,8 +512,7 @@ def cert_info(certificate_path):
         sys.exit(1)
 
 
-# File signing commands
-@cli.group()
+@main_cli.group()
 def sign():
     """File signing commands"""
     pass
@@ -610,8 +566,7 @@ def sign_file_cmd(ctx, file_path, private_key, certificate, output_dir, algorith
         sys.exit(1)
 
 
-# Verification commands
-@cli.group()
+@main_cli.group()
 def verify():
     """File verification commands"""
     pass
@@ -659,8 +614,7 @@ def verify_signature_cmd(ctx, signature_path, file_path, engine):
         sys.exit(1)
 
 
-# Standalone commands
-@cli.command()
+@main_cli.command()
 @click.argument('signature_path', type=click.Path(exists=True))
 def info(signature_path):
     """Display detailed information about a signature file"""
@@ -688,11 +642,51 @@ def info(signature_path):
         sys.exit(1)
 
 
-@cli.command()
+@main_cli.command()
 def examples():
     """Show usage examples"""
-    show_examples()
+    examples_text = f"""
+{Fore.CYAN}CodeSign Usage Examples:{Style.RESET_ALL}
+
+{Fore.YELLOW}1. Generate a code signing certificate:{Style.RESET_ALL}
+   codesign cert generate --common-name "My Code Signing Cert" --organization "My Company"
+
+{Fore.YELLOW}2. Generate with custom parameters:{Style.RESET_ALL}
+   codesign cert generate -cn "Developer Cert" -o "Acme Corp" -c "US" -k 4096 -d 730 --password mypassword
+
+{Fore.YELLOW}3. View certificate information:{Style.RESET_ALL}
+   codesign cert info certificates/my_code_signing_cert.crt
+
+{Fore.YELLOW}4. Sign a file:{Style.RESET_ALL}
+   codesign sign file myapp.exe -k certificates/my_cert.key -c certificates/my_cert.crt
+
+{Fore.YELLOW}5. Sign with specific options:{Style.RESET_ALL}
+   codesign sign file myapp.exe -k my.key -c my.crt -a SHA384 -pad PKCS1v15 -e pycryptodome
+
+{Fore.YELLOW}6. Verify a signature:{Style.RESET_ALL}
+   codesign verify signature signatures/myapp.exe.sig
+
+{Fore.YELLOW}7. Verify with different file location:{Style.RESET_ALL}
+   codesign verify signature myapp.exe.sig --file-path /new/location/myapp.exe
+
+{Fore.YELLOW}8. View signature details:{Style.RESET_ALL}
+   codesign info signatures/myapp.exe.sig
+
+{Fore.YELLOW}9. Verbose output:{Style.RESET_ALL}
+   codesign -v sign file myapp.exe -k my.key -c my.crt
+   codesign -v verify signature myapp.exe.sig
+
+{Fore.YELLOW}10. Interactive mode:{Style.RESET_ALL}
+   codesign           # Starts interactive mode
+   codesign -i        # Explicitly start interactive mode
+
+{Fore.GREEN}Note: Use --help with any command for more detailed options{Style.RESET_ALL}
+"""
+    click.echo(examples_text)
 
 
 if __name__ == '__main__':
-    cli()
+    # Print banner when run directly
+    if len(sys.argv) == 1:
+        print_banner()
+    main_cli()
