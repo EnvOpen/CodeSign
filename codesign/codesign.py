@@ -694,5 +694,20 @@ def examples():
     show_examples()
 
 
+@cli.command()
+def gui():
+    """Launch the graphical user interface"""
+    try:
+        from codesign.gui import main as gui_main
+        print_info("Launching CodeSign GUI...")
+        gui_main()
+    except ImportError:
+        print_error("GUI dependencies not available. Make sure tkinter is installed.")
+        sys.exit(1)
+    except Exception as e:
+        print_error(f"Failed to launch GUI: {e}")
+        sys.exit(1)
+
+
 if __name__ == '__main__':
     cli()

@@ -10,6 +10,8 @@ CodeSign is a comprehensive digital code signing platform that provides:
 - **Signature Verification**: Verify digital signatures and file integrity
 - **Dual Crypto Backend**: Support for both `cryptography` and `pycryptodomex` libraries
 - **CLI Interface**: Easy-to-use command-line interface
+- **GUI Interface**: User-friendly graphical interface for all operations
+- **Interactive Mode**: Guided CLI experience for beginners
 - **Programmatic API**: Use as a Python library in your applications
 
 ## Features
@@ -27,6 +29,12 @@ CodeSign is a comprehensive digital code signing platform that provides:
 - RSA-PSS and PKCS#1 v1.5 padding schemes
 - Timestamped signatures with signer information
 - JSON-based signature files for portability
+
+### User Interfaces
+- **Command Line Interface (CLI)**: Full-featured CLI with extensive options
+- **Interactive CLI Mode**: Guided experience for new users
+- **Graphical User Interface (GUI)**: Easy-to-use tkinter-based interface
+- **Programmatic API**: Python library for integration
 
 ### Security Features
 - Encrypted private key storage with password protection
@@ -59,6 +67,25 @@ This will install all dependencies and set up the environment.
 
 ### Basic Usage
 
+**Option 1: Graphical User Interface (Recommended for beginners)**
+```bash
+python codesign/gui_launcher.py
+```
+This launches a user-friendly GUI that provides:
+- Certificate generation with forms and validation
+- File signing with drag-and-drop support
+- Signature verification with detailed results
+- Certificate and signature information viewing
+- File utilities and tools
+
+**Option 2: Interactive Command Line**
+```bash
+python codesign/codesign.py
+```
+This starts an interactive mode with guided menus for all operations.
+
+**Option 3: Direct Command Line**
+
 1. **Generate a certificate:**
 ```bash
 python codesign/codesign.py cert generate --common-name "My Code Signing Cert"
@@ -73,6 +100,52 @@ python codesign/codesign.py sign file myapp.exe -k certificates/my_cert.key -c c
 ```bash
 python codesign/codesign.py verify signature signatures/myapp.exe.sig
 ```
+
+## Graphical User Interface
+
+CodeSign includes a comprehensive GUI built with tkinter that provides an intuitive interface for all operations.
+
+### Launching the GUI
+
+```bash
+python codesign/gui_launcher.py
+```
+
+### GUI Features
+
+The GUI is organized into four main tabs:
+
+#### 1. Certificate Management
+- **Generate Certificates**: Create new self-signed certificates with customizable parameters
+- **Certificate Information**: View detailed information about existing certificates
+- **Form Validation**: Real-time validation of certificate parameters
+- **Auto-population**: Generated certificates automatically populate signing fields
+
+#### 2. File Signing
+- **File Selection**: Browse and select files to sign
+- **Certificate/Key Selection**: Browse for certificates and private keys
+- **Signing Options**: Choose algorithms (SHA256/384/512), padding (PSS/PKCS1v15), and crypto engines
+- **Progress Tracking**: Visual progress indicators for signing operations
+- **Results Display**: Detailed signing results and signature information
+
+#### 3. Signature Verification
+- **Signature File Selection**: Browse and select signature files to verify
+- **File Verification**: Optionally specify alternate file locations
+- **Verification Results**: Comprehensive verification results with signature details
+- **Signer Information**: Display certificate information and validity
+
+#### 4. Tools & Information
+- **Signature Information**: Load and view detailed signature file contents
+- **File Utilities**: Calculate file hashes and view file information
+- **Folder Access**: Quick access to certificates and signatures folders
+- **File Hash Calculator**: Generate SHA256 and MD5 hashes for any file
+
+### GUI Benefits
+- **User-Friendly**: No command-line knowledge required
+- **Visual Feedback**: Progress bars, status messages, and color-coded results
+- **Error Handling**: Clear error messages and validation
+- **File Management**: Easy browsing and folder access
+- **Comprehensive**: All CLI features available through the GUI
 
 ## Detailed Usage
 
