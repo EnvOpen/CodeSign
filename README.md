@@ -447,6 +447,6 @@ For support, please open an issue on the GitHub repository or contact the mainta
 ---
 
 **CodeSign - Secure, Simple, Reliable Code Signing**
-- [Included License Text](external_licenses/pycryptodomex)
+- [Included License Text](LICENSE)
 - Version: 3.23.0
 - Cloned: 02/08/2025 (DD/MM/YYYY)
