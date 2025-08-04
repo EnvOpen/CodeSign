@@ -16,6 +16,7 @@ from typing import List, Dict, Any, Optional, Union
 
 from cryptography import x509
 from cryptography.hazmat.backends import default_backend
+from cryptography.x509.oid import ExtensionOID
 
 
 class FileUtils:
@@ -113,7 +114,7 @@ class CertUtils:
             'not_valid_after': certificate.not_valid_after.isoformat(),
             'signature_algorithm': certificate.signature_algorithm_oid._name,
             'is_self_signed': certificate.subject == certificate.issuer,
-            'public_key_size': certificate.public_key().key_size,
+            'public_key_size': getattr(certificate.public_key(), 'key_size', 'N/A'),
             'extensions': extensions,
             'is_valid_now': CertUtils.is_cert_valid_now(certificate),
             'days_until_expiry': CertUtils.days_until_expiry(certificate)
@@ -143,16 +144,19 @@ class CertUtils:
             
             # Check for Extended Key Usage extension
             try:
-                ext_key_usage = certificate.extensions.get_extension_for_oid(
-                    x509.oid.ExtensionOID.EXTENDED_KEY_USAGE
-                ).value
-                
+                extension = certificate.extensions.get_extension_for_oid(
+                    ExtensionOID.EXTENDED_KEY_USAGE
+                )
+                ext_key_usage = extension.value
                 # Check if code signing is enabled
-                return hasattr(ext_key_usage, '__contains__') and \
-                       any(oid._name == 'codeSigning' for oid in ext_key_usage)
+                from cryptography.x509.oid import ExtendedKeyUsageOID
+                # Cast to ExtendedKeyUsage and check if code signing is enabled
+                if isinstance(ext_key_usage, x509.ExtendedKeyUsage):
+                    return ExtendedKeyUsageOID.CODE_SIGNING in ext_key_usage
+                return False
             except x509.ExtensionNotFound:
                 return False
-                
+
         except Exception:
             return False
 

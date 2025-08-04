@@ -19,9 +19,15 @@ from cryptography import x509
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import rsa, padding
 from cryptography.hazmat.backends import default_backend
-from Cryptodome.Hash import SHA256, SHA384, SHA512
-from Cryptodome.Signature import pkcs1_15, pss
-from Cryptodome.PublicKey import RSA
+
+# Optional pycryptodomex imports
+try:
+    from Cryptodome.Hash import SHA256, SHA384, SHA512
+    from Cryptodome.Signature import pkcs1_15, pss
+    from Cryptodome.PublicKey import RSA
+    PYCRYPTODOME_AVAILABLE = True
+except ImportError:
+    PYCRYPTODOME_AVAILABLE = False
 
 
 class DigitalSigner:
@@ -29,11 +35,19 @@ class DigitalSigner:
     
     def __init__(self):
         self.backend = default_backend()
-        self.supported_algorithms = {
-            'SHA256': (hashes.SHA256(), SHA256),
-            'SHA384': (hashes.SHA384(), SHA384),
-            'SHA512': (hashes.SHA512(), SHA512)
-        }
+        if PYCRYPTODOME_AVAILABLE:
+            from Cryptodome.Hash import SHA256, SHA384, SHA512
+            self.supported_algorithms = {
+                'SHA256': (hashes.SHA256(), SHA256),
+                'SHA384': (hashes.SHA384(), SHA384),
+                'SHA512': (hashes.SHA512(), SHA512)
+            }
+        else:
+            self.supported_algorithms = {
+                'SHA256': (hashes.SHA256(), None),
+                'SHA384': (hashes.SHA384(), None),
+                'SHA512': (hashes.SHA512(), None)
+            }
     
     def calculate_file_hash(self, file_path: Path, algorithm: str = 'SHA256') -> str:
         """
@@ -153,6 +167,12 @@ class DigitalSigner:
         Returns:
             Dictionary containing signature information
         """
+        if not PYCRYPTODOME_AVAILABLE:
+            raise ImportError("pycryptodomex is not installed. Please install it to use pycryptodome backend.")
+        
+        from Cryptodome.PublicKey import RSA
+        from Cryptodome.Signature import pkcs1_15, pss
+        
         if algorithm not in self.supported_algorithms:
             raise ValueError(f"Unsupported hash algorithm: {algorithm}")
         
@@ -261,7 +281,11 @@ class DigitalSigner:
             else:
                 pad = padding.PKCS1v15()
             
-            # Verify signature
+            # Verify signature - only works with RSA keys
+            from cryptography.hazmat.primitives.asymmetric import rsa
+            if not isinstance(public_key, rsa.RSAPublicKey):
+                raise ValueError(f"Unsupported key type for signature verification: {type(public_key)}")
+            
             public_key.verify(signature, file_content, pad, hash_alg)
             return True
             
@@ -283,6 +307,12 @@ class DigitalSigner:
         Returns:
             True if signature is valid, False otherwise
         """
+        if not PYCRYPTODOME_AVAILABLE:
+            raise ImportError("pycryptodomex is not installed. Please install it to use pycryptodome backend.")
+        
+        from Cryptodome.PublicKey import RSA
+        from Cryptodome.Signature import pkcs1_15, pss
+        
         try:
             # Use provided file path or original from signature
             target_file = file_path or Path(signature_info['file_path'])
@@ -411,6 +441,10 @@ def sign_file(
         private_key = serialization.load_pem_private_key(
             key_data, password=password_bytes, backend=default_backend()
         )
+        
+        # Ensure we have an RSA key
+        if not isinstance(private_key, rsa.RSAPrivateKey):
+            raise ValueError(f"Only RSA private keys are supported, got: {type(private_key)}")
         
         signature_info = signer.sign_file_cryptography(
             file_path, private_key, certificate, algorithm, use_pss

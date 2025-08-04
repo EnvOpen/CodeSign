@@ -161,8 +161,8 @@ class CodeSignGUI:
         
         # Key Size
         ttk.Label(gen_group, text="Key Size:").grid(row=3, column=0, sticky=tk.W, padx=5, pady=2)
-        self.cert_key_size = ttk.Combobox(gen_group, values=[2048, 3072, 4096], state="readonly", width=10)
-        self.cert_key_size.set(2048)
+        self.cert_key_size = ttk.Combobox(gen_group, values=["2048", "3072", "4096"], state="readonly", width=10)
+        self.cert_key_size.set("2048")
         self.cert_key_size.grid(row=3, column=1, sticky=tk.W, padx=5, pady=2)
         
         # Validity Days
