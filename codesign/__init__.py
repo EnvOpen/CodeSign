@@ -8,7 +8,7 @@ CodeSign Package
 A comprehensive code signing platform using pycryptodomex and pyOpenSSL.
 """
 
-__version__ = "1.0.0-alpha"
+__version__ = "1.0.0"
 __author__ = "Argo Nickerson, Env Open"
 __license__ = "MIT"
 __description__ = "Digital Code Signing Utility"

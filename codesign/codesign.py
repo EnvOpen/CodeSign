@@ -48,7 +48,7 @@ from codesign.crypto_handlers import (
 )
 
 # Version information
-__version__ = "1.0.0-alpha"
+__version__ = "1.0.0"
 
 
 def print_banner():

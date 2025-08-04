@@ -36,7 +36,7 @@ except ImportError as e:
     sys.exit(1)
 
 # Version information
-__version__ = "1.0.0-alpha"
+__version__ = "1.0.0"
 
 
 class CodeSignGUI:

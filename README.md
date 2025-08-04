@@ -1,4 +1,4 @@
-# CodeSign v1.0.0-alpha
+# CodeSign v1.0.0
 Open source code signing utility using Python, pycryptodomex, and pyOpenSSL
 
 ## Overview
