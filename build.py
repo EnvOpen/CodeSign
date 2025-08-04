@@ -11,11 +11,10 @@ def build_gui():
     
     # Define the PyInstaller command
     cmd = [
-        'pyinstaller',
         f'--name=CodeSignGUI-v{load_info()["version"]}',
         '--onefile',
         '--windowed',
-        'codesign/gui_launcher.py'
+        './codesign/gui_launcher.py'
     ]
     
     # Run PyInstaller
@@ -29,10 +28,9 @@ def build_cli():
     
     # Define the PyInstaller command
     cmd = [
-        'pyinstaller',
         f'--name=CodeSignCLI-v{load_info()["version"]}',
         '--onefile',
-        'codesign/cli.py'
+        './codesign/cli.py'
     ]
     
     # Run PyInstaller
