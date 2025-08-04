@@ -155,8 +155,8 @@ class CodeSignGUI:
         
         # Country
         ttk.Label(gen_group, text="Country:").grid(row=2, column=0, sticky=tk.W, padx=5, pady=2)
-        self.cert_country = ttk.Entry(gen_group, width=10)
-        self.cert_country.insert(0, "US")
+        self.cert_country = ttk.Combobox(gen_group, values=["US", "CA", "GB", "DE", "FR", "JP", "AU", "NZ", "IT", "ES", "BR", "IN", "CN", "RU"], state="normal", width=10)
+        self.cert_country.set("US")
         self.cert_country.grid(row=2, column=1, sticky=tk.W, padx=5, pady=2)
         
         # Key Size
