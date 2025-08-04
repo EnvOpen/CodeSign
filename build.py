@@ -30,7 +30,7 @@ def build_cli():
     cmd = [
         f'--name=CodeSignCLI-v{load_info()["version"]}',
         '--onefile',
-        './codesign/cli.py'
+        './codesign/codesign.py'
     ]
     
     # Run PyInstaller
